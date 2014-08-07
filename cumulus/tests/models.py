@@ -4,7 +4,7 @@ from cumulus.storage import SwiftclientStorage
 
 openstack_storage = SwiftclientStorage()
 
-
+#Test
 class Thing(models.Model):
     "A dummy model to use for tests."
     image = models.ImageField(storage=openstack_storage,
