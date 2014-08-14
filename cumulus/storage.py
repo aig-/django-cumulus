@@ -100,6 +100,11 @@ class SwiftclientStorage(Auth, Storage):
         Uses the Swiftclient service to write ``content`` to a remote
         file (called ``name``).
         """
+        if content.size==0 :
+            #print("Can't copy '{0}' file size is 0 !".format(name))
+            self.log(u"!!! Can't copy '{0}' file size is 0 !".format(name))
+            return name
+
         content_type = get_content_type(name, content.file)
         headers = get_headers(name, content_type)
 
