@@ -202,8 +202,8 @@ class Command(NoArgsCommand):
                 self.create_count += 1
             self.upload_file(abspath, relpath)
             i+=1
-			if self.debug:
-            	print("item {0}".format(i))
+            if self.debug:
+                print("item {0}".format(i))
 
 
     def upload_file(self, abspath, cloud_filename):
