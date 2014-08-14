@@ -41,6 +41,9 @@ class Command(NoArgsCommand):
         optparse.make_option("-m", "--media",
                              action="store_true", dest="syncmedia", default=False,
                              help="Sync media files located at settings.MEDIA_ROOT path."),
+		optparse.make_option("-d", "--debug",
+                             action="store_true", dest="debug", default=False,
+                             help="Display debug prints."),
     )
 
     def set_options(self, options):
@@ -55,6 +58,7 @@ class Command(NoArgsCommand):
         self.verbosity = int(options.get("verbosity"))
         self.syncmedia = options.get("syncmedia")
         self.syncstatic = options.get("syncstatic")
+        self.debug = options.get("debug")
         if self.test_run:
             self.verbosity = 2
         cli_includes = options.get("includes")
@@ -107,7 +111,9 @@ class Command(NoArgsCommand):
         if self.wipe:
             self.wipe_container()
 
-        # match local files
+        if self.debug:
+			# match local files
+			print "REGION="+CUMULUS["REGION"]
         abspaths = self.match_local(self.file_root, self.includes, self.excludes)
         relpaths = []
         for path in abspaths:
@@ -179,6 +185,7 @@ class Command(NoArgsCommand):
         """
         Determines files to be uploaded and call ``upload_file`` on each.
         """
+        i=0
         for relpath in relpaths:
             abspath = [p for p in abspaths if p.endswith(relpath)][0]
             cloud_datetime = remote_objects[relpath] if relpath in remote_objects else None
@@ -194,6 +201,10 @@ class Command(NoArgsCommand):
             else:
                 self.create_count += 1
             self.upload_file(abspath, relpath)
+            i+=1
+			if self.debug:
+            	print("item {0}".format(i))
+
 
     def upload_file(self, abspath, cloud_filename):
         """
@@ -209,6 +220,8 @@ class Command(NoArgsCommand):
                 size = content.size
             else:
                 size = os.stat(abspath).st_size
+            if os.name == "nt" :
+            	cloud_filename=cloud_filename.replace('\\','/')
             self.container.create(
                 obj_name=cloud_filename,
                 data=content,
@@ -223,6 +236,9 @@ class Command(NoArgsCommand):
         self.upload_count += 1
         if not self.quiet or self.verbosity > 1:
             print("Uploaded: {0}".format(cloud_filename))
+
+		if self.debug:
+        	print("Uploaded from {2} to {0} with mime-type={1}".format(cloud_filename,content_type,abspath))
 
     def delete_extra_files(self, relpaths, cloud_objs):
         """
@@ -250,11 +266,11 @@ class Command(NoArgsCommand):
         Completely wipes out the contents of the container.
         """
         if self.test_run:
-            print("Wipe would delete {0} objects.".format(len(self.container.object_count)))
+            print("Wipe would delete {0} objects.".format(self.container.object_count))
         else:
             if not self.quiet or self.verbosity > 1:
-                print("Deleting {0} objects...".format(len(self.container.object_count)))
-            self._connection.delete_all_objects()
+                print("Deleting {0} objects...".format(self.container.object_count))
+            self.container.delete_all_objects() #_connection.delete_all_objects()
 
     def print_tally(self):
         """

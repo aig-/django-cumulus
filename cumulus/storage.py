@@ -103,6 +103,8 @@ class SwiftclientStorage(Auth, Storage):
         content_type = get_content_type(name, content.file)
         headers = get_headers(name, content_type)
 
+        name=name.replace('\\', '/')
+        print("use_pyrax={0} # name={1} # container={2} # {3} ".format(self.use_pyrax,name,self.container_name,headers))
         if self.use_pyrax:
             if headers.get("Content-Encoding") == "gzip":
                 content = get_gzipped_contents(content)
@@ -112,16 +114,19 @@ class SwiftclientStorage(Auth, Storage):
                                          content_type=content_type,
                                          content_encoding=headers.get("Content-Encoding", None),
                                          ttl=self.file_ttl,
+                                         headers=headers,
                                          etag=None)
-            # set headers/object metadata
-            self.connection.set_object_metadata(container=self.container_name,
-                                                obj=name,
-                                                metadata=headers,
-                                                prefix='')
+            #===================================================================
+            # # set headers/object metadata
+            # self.connection.set_object_metadata(container=self.container_name,
+            #                                     obj=name,
+            #                                     metadata=headers,
+            #                                     prefix='')
+            #===================================================================
         else:
             # TODO gzipped content when using swift client
             self.connection.put_object(self.container_name, name,
-                                       content, headers=headers)
+                                       content,content_type=content_type, headers=headers)
 
         return name
 
