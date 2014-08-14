@@ -236,7 +236,6 @@ class Command(NoArgsCommand):
         self.upload_count += 1
         if not self.quiet or self.verbosity > 1:
             print("Uploaded: {0}".format(cloud_filename))
-
         if self.debug:
             print("Uploaded from {2} to {0} with mime-type={1}".format(cloud_filename,content_type,abspath))
 
