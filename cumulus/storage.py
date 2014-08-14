@@ -91,9 +91,17 @@ class SwiftclientStorage(Auth, Storage):
 
     def _open(self, name, mode="rb"):
         """
-        Returns the SwiftclientStorageFile.
+        Returns the ContentFile
+
+        We actully dont need the swiftfilestorage object at all. The new
+        client will return back the bytes we need and django's ContentFile
+        will implement what we need and accept the bytes that the client
+        returns.
+
+        This also benefits from returning a real file object so if other
+        libraries need it we can use it.
         """
-        return SwiftclientStorageFile(storage=self, name=name)
+        return ContentFile(self._get_object(name).get())
 
     def _save(self, name, content):
         """
@@ -161,7 +169,11 @@ class SwiftclientStorage(Auth, Storage):
         """
         Returns the total size, in bytes, of the file specified by name.
         """
-        return self._get_object(name).total_bytes
+        file_object = self._get_object(name)
+        if file_object:
+            return file_object.total_bytes
+        else:
+            return 0
 
     def url(self, name):
         """
