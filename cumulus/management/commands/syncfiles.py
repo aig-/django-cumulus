@@ -202,8 +202,8 @@ class Command(NoArgsCommand):
                 self.create_count += 1
             self.upload_file(abspath, relpath)
             i+=1
-			if self.debug:
-            	print("item {0}".format(i))
+            if self.debug:
+                print("item {0}".format(i))
 
 
     def upload_file(self, abspath, cloud_filename):
@@ -237,8 +237,8 @@ class Command(NoArgsCommand):
         if not self.quiet or self.verbosity > 1:
             print("Uploaded: {0}".format(cloud_filename))
 
-		if self.debug:
-        	print("Uploaded from {2} to {0} with mime-type={1}".format(cloud_filename,content_type,abspath))
+        if self.debug:
+            print("Uploaded from {2} to {0} with mime-type={1}".format(cloud_filename,content_type,abspath))
 
     def delete_extra_files(self, relpaths, cloud_objs):
         """
